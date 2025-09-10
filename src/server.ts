@@ -19,8 +19,8 @@ const EmbeddingsRequest = z.object({
 type EmbeddingsRequest = z.infer<typeof EmbeddingsRequest>;
 
 const app = express();
-app.use(cors({ origin: true }));
-app.use(express.json({ limit: "2mb" }));
+app.use(cors());
+app.use(express.json());
 
 app.get("/healthz", async (_req: Request, res: Response) => {
   try {
