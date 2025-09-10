@@ -1,18 +1,13 @@
+// src/server.ts
 import express, { Request, Response } from "express";
 import cors from "cors";
 import { z } from "zod";
-import type { AddressInfo } from "node:net";
 import { embedBatch, getModelInfo, float32ToBase64 } from "./embeddings";
 
-// ---- Config ----
-// Default to port 4916. To use a random free port: set PORT=0 or RANDOM_PORT=1
-const HOST = "0.0.0.0";
-const DEFAULT_PORT = 4916;
-const envPort = process.env.PORT;
-const wantRandom = process.env.RANDOM_PORT === "1" || envPort === "0";
-const PORT = wantRandom ? 0 : Number(envPort ?? DEFAULT_PORT);
+// Fixed port
+const PORT = 4916;
 
-// ---- Schema ----
+// Schema
 const EmbeddingsRequest = z.object({
   model: z.string().optional(),
   input: z.union([z.string(), z.array(z.string())]),
@@ -23,17 +18,15 @@ const EmbeddingsRequest = z.object({
 });
 type EmbeddingsRequest = z.infer<typeof EmbeddingsRequest>;
 
-// ---- App ----
 const app = express();
-app.disable("x-powered-by");
 app.use(cors({ origin: true }));
-app.use(express.json({ limit: "2mb" })); // adjust if needed
+app.use(express.json({ limit: "2mb" }));
 
 app.get("/healthz", async (_req: Request, res: Response) => {
   try {
     const info = await getModelInfo();
     res.json({ ok: true, ...info });
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -61,7 +54,7 @@ app.post("/v1/embeddings", async (req: Request, res: Response) => {
 
     const info = await getModelInfo();
     res.json({ object: "list", data, model: info.model });
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -80,23 +73,7 @@ app.get("/", async (_req: Request, res: Response) => {
   }
 });
 
-// ---- Start server & log actual port ----
-const server = app.listen(PORT, HOST, () => {
-  const addr = server.address() as AddressInfo | null;
-  const actualPort = addr && typeof addr === "object" ? addr.port : envPort ?? DEFAULT_PORT;
-  console.log(`Embedding server listening on http://${HOST}:${actualPort}`);
+// Start (no host arg)
+app.listen(PORT, () => {
+  console.log(`Embedding server listening on http://localhost:${PORT}`);
 });
-
-// ---- Graceful shutdown ----
-const shutdown = (signal: string) => {
-  console.log(`${signal} received. Closing server...`);
-  server.close((err) => {
-    if (err) {
-      console.error("Error during shutdown", err);
-      process.exit(1);
-    }
-    process.exit(0);
-  });
-};
-process.on("SIGINT", () => shutdown("SIGINT"));
-process.on("SIGTERM", () => shutdown("SIGTERM"));
