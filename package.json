@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "start": "tsx src/server.ts",
+    "dev": "pnpm watch src/server.ts",
+    "start": "pnpm tsx src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start:dist": "node dist/server.js"
   },
