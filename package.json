@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "pm2 start dist/server.js",
     "start": "pm2 start dist/server.js",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc",
     "start:dist": "node dist/server.js"
   },
   "dependencies": {

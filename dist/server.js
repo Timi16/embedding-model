@@ -1,8 +1,7 @@
-// src/server.ts
 import express from "express";
 import cors from "cors";
 import { z } from "zod";
-import { embedBatch, getModelInfo, float32ToBase64 } from "./embeddings";
+import { embedBatch, getModelInfo, float32ToBase64 } from "./embeddings.js";
 // Fixed port
 const PORT = 4916;
 // Schema

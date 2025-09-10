@@ -1,8 +1,7 @@
-// src/server.ts
 import express, { Request, Response } from "express";
 import cors from "cors";
 import { z } from "zod";
-import { embedBatch, getModelInfo, float32ToBase64 } from "./embeddings";
+import { embedBatch, getModelInfo, float32ToBase64 } from "./embeddings.js";
 
 // Fixed port
 const PORT = 4916;
@@ -46,7 +45,7 @@ app.post("/v1/embeddings", async (req: Request, res: Response) => {
       normalize: body.normalize,
     });
 
-    const data = vectors.map((v, i) => ({
+    const data = vectors.map((v: any, i: any) => ({
       object: "embedding",
       index: i,
       embedding: body.encoding_format === "base64" ? float32ToBase64(v) : v,
